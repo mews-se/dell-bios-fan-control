@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/io.h>
 
@@ -56,7 +57,7 @@ struct smm_regs {
 static int i8k_smm(struct smm_regs *regs)
 {
     int rc;
-    int eax = regs->eax;
+    unsigned int eax = regs->eax;
 
 
     asm volatile("pushq %%rax\n\t"
@@ -83,7 +84,7 @@ static int i8k_smm(struct smm_regs *regs)
             "andl $1,%%eax\n"
             :"=a"(rc)
             :    "a"(regs)
-            :    "%ebx", "%ecx", "%edx", "%esi", "%edi");
+            :    "%ebx", "%ecx", "%edx", "%esi", "%edi", "memory");
 
     if (rc != 0 || (regs->eax & 0xffff) == 0xffff || regs->eax == eax)
             return -1;
@@ -92,23 +93,23 @@ static int i8k_smm(struct smm_regs *regs)
 }
 
 
-int send(unsigned int cmd, unsigned int arg) {
+static int send(unsigned int cmd, unsigned int arg) {
 
     struct smm_regs regs = { .eax = cmd, };
 
     regs.ebx = arg;
 
-    i8k_smm(&regs);
-    return regs.eax ;
+    return i8k_smm(&regs);
 
 }
 
 int main(int argc, char **argv) {
 
     int enable;
+    int rc;
 
     if (geteuid() != 0) {
-        printf("need root privileges\n");
+        fprintf(stderr, "need root privileges\n");
         exit(EXIT_FAILURE);
     }
 
@@ -118,21 +119,30 @@ int main(int argc, char **argv) {
         exit(EXIT_FAILURE);
     }
 
-    init_ioperm();
-
-    enable = atoi(argv[1]);
-    if (enable == 1) {
-        send(ENABLE_BIOS_METHOD2, 0);
-        printf ("BIOS CONTROL ENABLED\n");
-    }
+    if (strcmp(argv[1], "1") == 0)
+        enable = 1;
     else
-    if (enable == 0) {
-        send(DISABLE_BIOS_METHOD2, 0);
-        printf ("BIOS CONTROL DISABLED\n");
-    }
-    else  {
-        printf ("Use 1 to enable bios control or 0 to disable\n");
+    if (strcmp(argv[1], "0") == 0)
+        enable = 0;
+    else {
+        fprintf(stderr, "Use 1 to enable bios control or 0 to disable\n");
         exit(EXIT_FAILURE);
     }
 
+    init_ioperm();
+
+    if (enable) {
+        rc = send(ENABLE_BIOS_METHOD2, 0);
+        printf ("BIOS CONTROL ENABLED\n");
+    }
+    else {
+        rc = send(DISABLE_BIOS_METHOD2, 0);
+        printf ("BIOS CONTROL DISABLED\n");
+    }
+
+    /* The error heuristic can misfire on some BIOSes, so warn only */
+    if (rc != 0)
+        fprintf(stderr, "warning: SMM call may have failed\n");
+
+    return 0;
 }
