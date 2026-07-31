@@ -1,6 +1,9 @@
 ## dell-bios-fan-control
 
-#### A user space utility to set control of fans by bios on Dell 9560 Laptops.
+#### A user space utility to enable or disable BIOS control of the fans on Dell machines.
+
+Originally written for the Dell XPS 9560, but the SMM commands it uses work on
+most Dell machines (laptops as well as desktops such as the OptiPlex series).
 
 Allows to control the fans by bios or i8kctl utils.
 
@@ -30,7 +33,7 @@ i8kctl fan 1 1
 
 ### Caveats
 
-* The BIOS of some newer Dell laptops (9560, ...)
+* The BIOS of most newer Dell machines (9560, OptiPlex, ...)
   will override the speed you set unless you disable the BIOS control.
 
 * This tool allows to enable or disable bios control of fans to
