@@ -43,3 +43,5 @@ i8kctl fan 1 1
 ### Credits
 
 * All credits belong to: https://github.com/clopez/dellfan
+
+* Forked from Tom Freudenberg's https://github.com/TomFreudenberg/dell-bios-fan-control
