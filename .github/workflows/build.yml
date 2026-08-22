@@ -1,0 +1,16 @@
+name: Build
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: make CFLAGS="-O2 -Wall -Wextra -Werror -mno-red-zone"
+      - name: Check the architecture guard
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -yq gcc-aarch64-linux-gnu
+          ! aarch64-linux-gnu-gcc -fsyntax-only dell-bios-fan-control.c 2> guard.log
+          grep -q 'x86-64 only' guard.log
