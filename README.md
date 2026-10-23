@@ -1,7 +1,7 @@
 # dell-bios-fan-control
 
 Turns BIOS fan control on Dell machines on and off from user space with the SMM calls
-`0x34a3` and `0x35a3` — the same pair the kernel's `dell-smm-hwmon` driver uses on
+`0x34a3` and `0x35a3`, the same pair the kernel's `dell-smm-hwmon` driver uses on
 whitelisted models.
 
 With BIOS control disabled the firmware stops overriding the fans, so `fancontrol` or
@@ -33,7 +33,7 @@ i8kctl fan 1 1
 ## Machines
 
 Written for the XPS 9560, but the SMM pair is not model specific and works on desktops
-too — verified on an OptiPlex 3080 (BIOS 2.35.0, kernel 6.1), where both calls return
+too, verified on an OptiPlex 3080 (BIOS 2.35.0, kernel 6.1), where both calls return
 successfully.
 
 Many models re-arm the BIOS control on their own, so a machine that goes quiet after
@@ -48,7 +48,7 @@ control off by itself.
   the BIOS control.
 * The inline SMM assembly declares its memory clobber.
 * A failed SMM call warns on stderr instead of passing unnoticed. The exit code is left
-  at 0 on purpose — the error heuristic misfires on some BIOSes.
+  at 0 on purpose: the error heuristic misfires on some BIOSes.
 * The Makefile builds with `-O2 -Wall -Wextra`.
 
 ## Credits and licence
