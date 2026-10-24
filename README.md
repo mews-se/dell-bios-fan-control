@@ -13,7 +13,8 @@ With BIOS control disabled the firmware stops overriding the fans, so `fancontro
 make
 ```
 
-Nothing beyond a C compiler and libc.
+Nothing beyond a C compiler and libc. x86-64 only; other architectures stop at an
+`#error`.
 
 ## Usage
 
@@ -33,8 +34,8 @@ i8kctl fan 1 1
 ## Machines
 
 Written for the XPS 9560, but the SMM pair is not model specific and works on desktops
-too, verified on an OptiPlex 3080 (BIOS 2.35.0, kernel 6.1), where both calls return
-successfully.
+too, verified on two OptiPlex 3080s: both calls return successfully on BIOS 2.16.0 with
+kernel 6.1, and the disable call does on BIOS 2.35.0 with kernels 6.12 and 7.0.
 
 Many models re-arm the BIOS control on their own, so a machine that goes quiet after
 `0` can start overriding the fans again later. That is why [dellfan](https://github.com/mews-se/dellfan)
@@ -49,7 +50,8 @@ control off by itself.
 * The inline SMM assembly declares its memory clobber.
 * A failed SMM call warns on stderr instead of passing unnoticed. The exit code is left
   at 0 on purpose: the error heuristic misfires on some BIOSes.
-* The Makefile builds with `-O2 -Wall -Wextra`.
+* The Makefile builds with `-O2 -Wall -Wextra`, plus `-mno-red-zone` since the SMM
+  assembly pushes to the stack.
 
 ## Credits and licence
 
